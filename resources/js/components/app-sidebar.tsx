@@ -5,9 +5,10 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Beef, Folder, LayoutGrid, ChartArea, Ruler, Wallet2Icon } from 'lucide-react';
+import { Beef, Folder, LayoutGrid, Utensils, Ruler, Wallet2Icon } from 'lucide-react';
 import AppLogo from './app-logo';
 import foods from '@/routes/foods';
+import meals from '@/routes/meals';
 
 const mainNavItems: NavItem[] = [
     {
@@ -21,9 +22,9 @@ const mainNavItems: NavItem[] = [
         icon: Folder,
         tree: [
             {
-                title: 'Visão Geral',
-                href: '#',
-                icon: ChartArea,
+                title: 'Refeições',
+                href: meals.index(),
+                icon: Utensils,
             },
             {
                 title: 'Alimentos',

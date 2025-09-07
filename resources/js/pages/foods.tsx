@@ -48,12 +48,12 @@ export default function Foods() {
                             {foodsData.map((food) => (
                                 <tr key={food.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm">{food.id}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).kcal_per_100g}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).carbohydrates_per_100g}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).proteins_per_100g}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).fats_per_100g}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{(food as any).fiber_per_100g}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.name}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.kcal_per_100g}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.carbohydrates_per_100g}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.proteins_per_100g}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.fats_per_100g}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">{food.fiber_per_100g}</td>
                                 </tr>
                             ))}
                         </tbody>

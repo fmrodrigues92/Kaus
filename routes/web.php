@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\MealController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -15,6 +16,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('foods', [FoodController::class, 'index'])->name('foods.index');
+
+    Route::get('meals', [MealController::class, 'index'])->name('meals.index');
 });
 
 require __DIR__.'/settings.php';
