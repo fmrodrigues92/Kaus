@@ -7,6 +7,7 @@ import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import { Beef, Folder, LayoutGrid, ChartArea, Ruler, Wallet2Icon } from 'lucide-react';
 import AppLogo from './app-logo';
+import foods from '@/routes/foods';
 
 const mainNavItems: NavItem[] = [
     {
@@ -26,7 +27,7 @@ const mainNavItems: NavItem[] = [
             },
             {
                 title: 'Alimentos',
-                href: '#',
+                href: foods.index(),
                 icon: Beef,
             },
             {
