@@ -5,7 +5,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Beef, Folder, LayoutGrid, ChartArea, Ruler, Wallet2Icon } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -14,6 +14,33 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Dieta',
+        href: '#',
+        icon: Folder,
+        tree: [
+            {
+                title: 'Visão Geral',
+                href: '#',
+                icon: ChartArea,
+            },
+            {
+                title: 'Alimentos',
+                href: '#',
+                icon: Beef,
+            },
+            {
+                title: 'Medidas',
+                href: '#',
+                icon: Ruler,
+            },
+        ]
+    },
+    {
+        title: 'Finance',
+        href: '#',
+        icon: Wallet2Icon,
+    }
 ];
 
 const footerNavItems: NavItem[] = [

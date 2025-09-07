@@ -20,6 +20,16 @@ export function NavMain({ items = [] }: { items: NavItem[] }) {
                                 <span>{item.title}</span>
                             </Link>
                         </SidebarMenuButton>
+                            {item.tree && item.tree.length > 0 &&
+                                <div className="ml-6 h-auto rounded-b-lg overflow-y-auto">
+                                    {item.tree.map((subItem) => (
+                                        <Link key={subItem.title} href={subItem.href} className="flex items-center px-2 py-1 rounded-md text-sm hover:bg-accent-foreground/10 " prefetch>
+                                            {subItem.icon && <subItem.icon className="mr-2 size-4" />}
+                                            <span>{subItem.title}</span>
+                                        </Link>
+                                    ))}
+                                </div>
+                            }
                     </SidebarMenuItem>
                 ))}
             </SidebarMenu>
