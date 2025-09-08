@@ -17,4 +17,9 @@ class Food extends Model
         'fiber_per_100g',
         'sodium_per_100g',
     ];
+
+    public function mealItems()
+    {
+        return $this->hasMany(MealItem::class);
+    }
 }

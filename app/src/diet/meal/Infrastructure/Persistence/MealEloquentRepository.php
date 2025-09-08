@@ -19,7 +19,13 @@ class MealEloquentRepository implements MealRepositoryInterface
             name: $m->name,
             meal_datetime: $m->meal_datetime,
             createdAt: $m->created_at?->toDateTimeString(),
-            updatedAt: $m->updated_at?->toDateTimeString()
+            updatedAt: $m->updated_at?->toDateTimeString(),
+            total_kcal: $m->total_kcal,
+            total_carbohydrates: $m->total_carbohydrates,
+            total_proteins: $m->total_proteins,
+            total_fats: $m->total_fats,
+            total_fiber: $m->total_fiber,
+            total_sodium: $m->total_sodium
         );
     }
 
