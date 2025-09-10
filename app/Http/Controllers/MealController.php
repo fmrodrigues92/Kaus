@@ -7,18 +7,21 @@ use App\Http\Requests\UpdateMealRequest;
 use App\Models\Meal;
 use Src\diet\meal\Application\ListMealsUseCase;
 use Inertia\Inertia;
+use Src\diet\food\Application\ListFoodsUseCase;
 
 class MealController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(ListMealsUseCase $listMealsUseCase)
+    public function index(ListMealsUseCase $listMealsUseCase, ListFoodsUseCase $listFoodsUseCase)
     {
         $meals = $listMealsUseCase->execute();
+        $foods = $listFoodsUseCase->execute();
 
         return Inertia::render('meals', [
-            'meals' => $meals
+            'meals' => $meals,
+            'foods' => $foods
         ]);
     }
 
