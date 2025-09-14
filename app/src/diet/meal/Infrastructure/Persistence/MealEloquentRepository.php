@@ -71,7 +71,29 @@ class MealEloquentRepository implements MealRepositoryInterface
 
     public function all(): array
     {
-        $models = MealModel::with(['mealItems.food', 'mealItems.meal'])->get();
+        $models = MealModel::with(['mealItems.food', 'mealItems.meal'])->orderBy('id', 'desc')->get();
         return $models->map(fn($m) => $this->toEntity($m))->toArray();
+    }
+
+    public function create(array $data, int $userId): array
+    {
+        $mealModel = new MealModel();
+        $mealModel->user_id = $userId;
+        $mealModel->name = $data['name'];
+        $mealModel->meal_datetime = $data['meal_datetime'];
+        $mealModel->save();
+
+        // Save meal items
+        foreach ($data['mealItems'] as $itemData) {
+            $mealModel->mealItems()->create([
+                'food_id' => $itemData['food_id'],
+                'quantity' => $itemData['quantity'],
+            ]);
+        }
+
+        // Reload the meal with its items and associated foods
+        $mealModel->load(['mealItems.food']);
+
+        return [$this->toEntity($mealModel)];
     }
 }

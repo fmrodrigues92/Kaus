@@ -2,7 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import meals from '@/routes/meals';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { usePage } from '@inertiajs/react';
+import { usePage, router } from '@inertiajs/react';
 import { useState } from "react";
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -72,8 +72,32 @@ export default function Meals() {
         setIsModalOpen(true);
     }
 
-    const { meals: meals = [] } = usePage<{ meals: Meal[] }>().props;
-    const { foods: foods = [] } = usePage<{ foods: Food[] }>().props;
+    function handleSave(e: React.FormEvent) {
+        e.preventDefault(); // impede o refresh
+
+        if (selectedMeal.id === 0) {
+            const mealToSend = {
+                ...selectedMeal,
+                mealItems: selectedMeal.mealItems.map(item => ({
+                    id: item.id,
+                    food_id: item.food.id,
+                    quantity: item.quantity
+                }))
+            };
+
+            router.post(meals.store().url, { meal: mealToSend }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    closeModal();
+                }
+            });
+        } else {
+            // router.put(meals.update(selectedMeal.id).url, selectedMeal);
+        }
+}
+
+    const { meals: mealsData = [] } = usePage<{ meals: Meal[] }>().props;
+    const { foods: foodsData = [] } = usePage<{ foods: Food[] }>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -130,7 +154,7 @@ export default function Meals() {
                                                     value={item.food.id ?? ''}
                                                     onChange={(e) => {
                                                         const foodId = Number(e.target.value);
-                                                        const food = foods.find(f => f.id === foodId);
+                                                        const food = foodsData.find(f => f.id === foodId);
                                                         if (food) {
                                                             const updatedItems = [...selectedMeal.mealItems];
                                                             updatedItems[idx] = { ...updatedItems[idx], food };
@@ -139,7 +163,7 @@ export default function Meals() {
                                                     }}
                                                 >
                                                     <option value="">Select a food item...</option>
-                                                    {foods.map(food => (
+                                                    {foodsData.map(food => (
                                                         <option key={food.id} value={food.id}>{food.name}</option>
                                                     ))}
                                                 </select>
@@ -194,17 +218,18 @@ export default function Meals() {
                                 </div>
                                 <div className="mt-6 text-right">
                                     <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 mr-2"
+                                        onClick={handleSave}
+                                    >
+                                        Save
+                                    </button>
+                                    <button
                                         type="button"
-                                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 mr-2"
+                                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400"
                                         onClick={closeModal}
                                     >
                                         Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    >
-                                        Save
                                     </button>
                                 </div>
                             </form>
@@ -219,17 +244,17 @@ export default function Meals() {
 
                 <div className="mb-4 flex flex-col gap-2">
                     {Object.entries(
-                        meals.reduce<Record<string, { kcal: number; carb: number; protein: number; fat: number; fiber: number; sodium: number }>>((acc, meal) => {
+                        mealsData.reduce<Record<string, { kcal: number; carb: number; protein: number; fat: number; fiber: number; sodium: number }>>((acc, meal) => {
                             const day = meal.meal_datetime ? meal.meal_datetime.slice(0, 10) : 'Unknown';
                             if (!acc[day]) {
                                 acc[day] = { kcal: 0, carb: 0, protein: 0, fat: 0, fiber: 0, sodium: 0 };
                             }
-                            acc[day].kcal += meal.mealItems.reduce((sum, item) => sum + (item.food.kcal_per_100g ?? 0), 0);
-                            acc[day].carb += meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g ?? 0), 0);
-                            acc[day].protein += meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g ?? 0), 0);
-                            acc[day].fat += meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g ?? 0), 0);
-                            acc[day].fiber += meal.mealItems.reduce((sum, item) => sum + (item.food.fiber_per_100g ?? 0), 0);
-                            acc[day].sodium += meal.mealItems.reduce((sum, item) => sum + (item.food.sodium_per_100g ?? 0), 0);
+                            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.kcal_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.carbohydrates_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.proteins_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fats_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g * item.quantity) ?? 0), 0));
   
                             return acc;
                         }, {})
@@ -246,7 +271,28 @@ export default function Meals() {
                     ))}
                 </div>
                 
-                <h1 className="text-2xl font-bold">Meals</h1>
+                <div className="mb-4 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold">Meals</h1>
+                        <p className="text-gray-600 dark:text-gray-400">Click on a meal name to view/edit details.</p>
+                    </div>
+                    <div className="mt-4">
+                        <button
+                            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            onClick={() => openModal({
+                                id: 0,
+                                user_id: 0,
+                                name: '',
+                                meal_datetime: null,
+                                createdAt: null,
+                                updatedAt: null,
+                                mealItems: []
+                            })}
+                        >
+                            New Meal
+                        </button>
+                    </div>
+                </div>
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 dark:divide-stone-700">
                         <thead className="bg-gray-50 dark:bg-stone-800">
@@ -263,14 +309,13 @@ export default function Meals() {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:bg-stone-900 dark:divide-stone-700 dark:text-gray-300">
-                            {meals.map((meal) => {
-                                // Calculate total kcal from mealItems
-                                const totalKcal = meal.mealItems.reduce((sum, item) => sum + item.food.kcal_per_100g, 0);
-                                const totalCarb = meal.mealItems.reduce((sum, item) => sum + item.food.carbohydrates_per_100g, 0);
-                                const totalProtein = meal.mealItems.reduce((sum, item) => sum + item.food.proteins_per_100g, 0);
-                                const totalFat = meal.mealItems.reduce((sum, item) => sum + item.food.fats_per_100g, 0);
-                                const totalFiber = meal.mealItems.reduce((sum, item) => sum + item.food.fiber_per_100g, 0);
-                                const totalSodium = meal.mealItems.reduce((sum, item) => sum + item.food.sodium_per_100g, 0);
+                            {mealsData.map((meal) => {
+                                const totalKcal = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.kcal_per_100g * item.quantity), 0));
+                                const totalCarb = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g * item.quantity), 0));
+                                const totalProtein = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g * item.quantity), 0));
+                                const totalFat = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g * item.quantity), 0));
+                                const totalFiber = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fiber_per_100g * item.quantity), 0));
+                                const totalSodium = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.sodium_per_100g * item.quantity), 0));
 
                                 return (
                                     <tr key={meal.id}>

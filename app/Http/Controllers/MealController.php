@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreMealRequest;
 use App\Http\Requests\UpdateMealRequest;
 use App\Models\Meal;
+use Illuminate\Http\Request;
 use Src\diet\meal\Application\ListMealsUseCase;
 use Inertia\Inertia;
 use Src\diet\food\Application\ListFoodsUseCase;
+use Src\diet\meal\Application\CreateMealsUseCase;
 
 class MealController extends Controller
 {
@@ -36,9 +38,15 @@ class MealController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreMealRequest $request)
+    public function store(StoreMealRequest $request, CreateMealsUseCase $createMealsUseCase)
     {
-        //
+        $user = $request->user();
+        $data = $request->validated();
+        $data['user_id'] = $user->id;
+
+        $meal = $createMealsUseCase->execute($data);
+
+        return redirect()->route('meals.index');
     }
 
     /**

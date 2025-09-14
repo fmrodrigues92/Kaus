@@ -8,12 +8,12 @@ class MealItem
 {
     public int $id;
     public Food $food;
-    public int $quantity;
+    public float $quantity;
 
     public function __construct(
         int $id,
         Food $food,
-        int $quantity
+        float $quantity
     )
     {
         $this->id = $id;

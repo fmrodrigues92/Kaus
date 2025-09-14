@@ -18,6 +18,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('foods', [FoodController::class, 'index'])->name('foods.index');
 
     Route::get('meals', [MealController::class, 'index'])->name('meals.index');
+    Route::post('meals', [MealController::class, 'store'])->name('meals.store');
 });
 
 require __DIR__.'/settings.php';
