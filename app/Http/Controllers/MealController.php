@@ -16,9 +16,11 @@ class MealController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ListMealsUseCase $listMealsUseCase, ListFoodsUseCase $listFoodsUseCase)
+    public function index(ListMealsUseCase $listMealsUseCase, ListFoodsUseCase $listFoodsUseCase, Request $request)
     {
-        $meals = $listMealsUseCase->execute();
+        $filters = $request->only(['days']);
+
+        $meals = $listMealsUseCase->execute($filters);
         $foods = $listFoodsUseCase->execute();
 
         return Inertia::render('meals', [

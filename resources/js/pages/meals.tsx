@@ -3,7 +3,19 @@ import meals from '@/routes/meals';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
 import { usePage, router } from '@inertiajs/react';
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMemo } from "react";
+
+import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS,
+            BarElement,
+            CategoryScale,
+            LinearScale,
+            Tooltip,
+            Legend,
+        } from "chart.js";
+
+ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -47,8 +59,11 @@ interface Meal {
 
 export default function Meals() {
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { meals: mealsData = [] } = usePage<{ meals: Meal[] }>().props;
+    const { foods: foodsData = [] } = usePage<{ foods: Food[] }>().props;
 
+    const [days, setDays] = useState<number>(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMeal, setSelectedMeal] = useState<Meal>({
         id: 0,
         user_id: 0,
@@ -59,10 +74,29 @@ export default function Meals() {
         mealItems: []
     });
 
+    // On component mount, read the 'days' parameter from the URL
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const daysParam = params.get('days');
+        if (daysParam) {
+            setDays(Number(daysParam));
+        } else {
+            setDays(0);
+        }
+    }, []);
+
+    //filter days function
+    function filterDaysUrlParam(days: number): string {
+        setDays(days);
+        const url = days > 0 ? `${meals.index().url}?days=${days}` : meals.index().url;
+        router.get(url, {}, { preserveState: true, preserveScroll: true });
+        return url;
+    }
+
+
     function closeModal() {
         setIsModalOpen(false);
     }
-
     function openModal(meal: Meal) {
         
         setSelectedMeal({
@@ -71,6 +105,7 @@ export default function Meals() {
 
         setIsModalOpen(true);
     }
+
 
     function handleSave(e: React.FormEvent) {
         e.preventDefault(); // impede o refresh
@@ -94,10 +129,72 @@ export default function Meals() {
         } else {
             // router.put(meals.update(selectedMeal.id).url, selectedMeal);
         }
-}
+    }
 
-    const { meals: mealsData = [] } = usePage<{ meals: Meal[] }>().props;
-    const { foods: foodsData = [] } = usePage<{ foods: Food[] }>().props;
+    const dailyTotals = useMemo(() => {
+        return mealsData.reduce<Record<string, { kcal: number; carb: number; protein: number; fat: number; fiber: number; sodium: number }>>((acc, meal) => {
+            const day = meal.meal_datetime ? meal.meal_datetime.slice(0, 10) : 'Unknown';
+            if (!acc[day]) {
+                acc[day] = { kcal: 0, carb: 0, protein: 0, fat: 0, fiber: 0, sodium: 0 };
+            }
+            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.kcal_per_100g * item.quantity) ?? 0), 0));
+            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.carbohydrates_per_100g * item.quantity) ?? 0), 0));
+            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.proteins_per_100g * item.quantity) ?? 0), 0));
+            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fats_per_100g * item.quantity) ?? 0), 0));
+            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g * item.quantity) ?? 0), 0));
+            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g * item.quantity) ?? 0), 0));
+            return acc;
+        }, {});
+    }, [mealsData]);
+
+    const chartLabels = Object.keys(dailyTotals).sort();
+    const chartData = {
+        labels: chartLabels,
+        datasets: [
+            {
+                label: "Kcal",
+                data: chartLabels.map(day => dailyTotals[day].kcal),
+                backgroundColor: "rgba(59, 130, 246, 0.7)",
+            },
+            {
+                label: "Carb (g)",
+                data: chartLabels.map(day => dailyTotals[day].carb),
+                backgroundColor: "rgba(16, 185, 129, 0.7)",
+            },
+            {
+                label: "Protein (g)",
+                data: chartLabels.map(day => dailyTotals[day].protein),
+                backgroundColor: "rgba(234, 179, 8, 0.7)",
+            },
+            {
+                label: "Fat (g)",
+                data: chartLabels.map(day => dailyTotals[day].fat),
+                backgroundColor: "rgba(239, 68, 68, 0.7)",
+            },
+            {
+                label: "Fiber (g)",
+                data: chartLabels.map(day => dailyTotals[day].fiber),
+                backgroundColor: "rgba(168, 85, 247, 0.7)",
+            },
+            {
+                label: "Sodium (mg)",
+                data: chartLabels.map(day => dailyTotals[day].sodium),
+                backgroundColor: "rgba(59, 130, 246, 0.3)",
+            },
+        ],
+    };
+
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: { position: "top" as const },
+            tooltip: { mode: "index", intersect: false },
+        },
+        scales: {
+            x: { stacked: true },
+            y: { stacked: false, beginAtZero: true },
+        },
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -239,6 +336,28 @@ export default function Meals() {
                     </div>
                 </div>
             )}
+
+            <div className="m-4 flex items-center gap-2">
+                <label htmlFor="select-days" className="text-sm font-medium">Show days:</label>
+                <select
+                    id="select-days"
+                    className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-stone-800 dark:border-stone-700 dark:text-gray-300"
+                    value={days}
+                    onChange={e => filterDaysUrlParam(Number(e.target.value))}
+                >
+                    <option value={0}>All</option>
+                    <option value={7}>Last 7 days</option>
+                    <option value={15}>Last 15 days</option>
+                    <option value={30}>Last 30 days</option>
+                </select>
+            </div>
+
+            <div className="mx-4 mb-8">
+                <h2 className="text-lg font-semibold mb-2">Daily Nutrition Chart</h2>
+                <div className="bg-white dark:bg-stone-900 rounded-lg p-4 shadow">
+                    <Bar data={chartData} options={chartOptions} />
+                </div>
+            </div>
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
 

@@ -69,9 +69,14 @@ class MealEloquentRepository implements MealRepositoryInterface
         return $m;
     }
 
-    public function all(): array
+    public function all(array $filters): array
     {
-        $models = MealModel::with(['mealItems.food', 'mealItems.meal'])->orderBy('id', 'desc')->get();
+        $models = MealModel::with(['mealItems.food', 'mealItems.meal'])
+            ->when(isset($filters['days']), function ($query) use ($filters) {
+                return $query->where('meal_datetime', '>=', now()->subDays($filters['days']));
+            })
+            ->orderBy('meal_datetime', 'desc')
+            ->get();
         return $models->map(fn($m) => $this->toEntity($m))->toArray();
     }
 

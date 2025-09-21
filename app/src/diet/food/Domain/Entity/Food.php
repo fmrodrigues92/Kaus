@@ -6,24 +6,24 @@ class Food
 {
     public int $id;
     public string $name;
-    public int $kcal_per_100g;
-    public int $carbohydrates_per_100g;
-    public int $proteins_per_100g;
-    public int $fats_per_100g;
-    public ?int $fiber_per_100g;
-    public ?int $sodium_per_100g;
+    public ?float $kcal_per_100g;
+    public ?float $carbohydrates_per_100g;
+    public ?float $proteins_per_100g;
+    public ?float $fats_per_100g;
+    public ?float $fiber_per_100g;
+    public ?float $sodium_per_100g;
     public ?string $createdAt;
     public ?string $updatedAt;
 
     public function __construct(
         int $id,
         string $name,
-        int $kcal_per_100g,
-        int $carbohydrates_per_100g,
-        int $proteins_per_100g,
-        int $fats_per_100g,
-        ?int $fiber_per_100g = null,
-        ?int $sodium_per_100g = null,
+        ?float $kcal_per_100g,
+        ?float $carbohydrates_per_100g,
+        ?float $proteins_per_100g,
+        ?float $fats_per_100g,
+        ?float $fiber_per_100g = null,
+        ?float $sodium_per_100g = null,
         ?string $createdAt = null,
         ?string $updatedAt = null
     ) {

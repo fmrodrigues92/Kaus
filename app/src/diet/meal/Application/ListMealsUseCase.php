@@ -14,9 +14,9 @@ class ListMealsUseCase
         //
     }
 
-    public function execute(): array
+    public function execute(array $filters): array
     {
         // Business logic to list all food items
-        return $this->mealRepository->all();
+        return $this->mealRepository->all($filters);
     }
 }
