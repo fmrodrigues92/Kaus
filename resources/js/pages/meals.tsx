@@ -340,44 +340,15 @@ export default function Meals() {
                 </select>
             </div>
 
-            <div className="mx-4 mb-8">
+            <div className="mx-4 my-5">
                 <h2 className="text-lg font-semibold mb-2">Daily Nutrition Chart</h2>
                 <div className="bg-white dark:bg-stone-900 rounded-lg p-4 shadow">
                     <Bar data={chartData} />
                 </div>
             </div>
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
+            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl px-4 py-4">
 
-                <div className="mb-4 flex flex-col gap-2">
-                    {Object.entries(
-                        mealsData.reduce<Record<string, { kcal: number; carb: number; protein: number; fat: number; fiber: number; sodium: number }>>((acc, meal) => {
-                            const day = meal.meal_datetime ? meal.meal_datetime.slice(0, 10) : 'Unknown';
-                            if (!acc[day]) {
-                                acc[day] = { kcal: 0, carb: 0, protein: 0, fat: 0, fiber: 0, sodium: 0 };
-                            }
-                            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.kcal_per_100g * item.quantity), 0));
-                            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g * item.quantity), 0));
-                            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g * item.quantity), 0));
-                            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g * item.quantity), 0));
-                            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g ?? 0) * item.quantity), 0));
-                            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g ?? 0) * item.quantity), 0));
-  
-                            return acc;
-                        }, {})
-                    ).map(([day, totals]) => (
-                        <div key={day} className="rounded bg-gray-100 dark:bg-stone-800 p-2 text-sm flex flex-wrap">
-                            <span className="font-semibold border-r border-zinc-300 px-2">{day}</span>
-                            <span className='border-r border-zinc-300 px-2'>Kcal: {totals.kcal}</span>
-                            <span className='border-r border-zinc-300 px-2'>Carb: {totals.carb} g</span>
-                            <span className='border-r border-zinc-300 px-2'>Protein: {totals.protein} g</span>
-                            <span className='border-r border-zinc-300 px-2'>Fat: {totals.fat} g</span>
-                            <span className='border-r border-zinc-300 px-2'>Fiber: {totals.fiber} g</span>
-                            <span className='px-2'>Sodium: {totals.sodium} mg</span>
-                        </div>
-                    ))}
-                </div>
-                
                 <div className="mb-4 flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Meals</h1>
