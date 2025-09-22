@@ -137,12 +137,12 @@ export default function Meals() {
             if (!acc[day]) {
                 acc[day] = { kcal: 0, carb: 0, protein: 0, fat: 0, fiber: 0, sodium: 0 };
             }
-            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.kcal_per_100g * item.quantity) ?? 0), 0));
-            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.carbohydrates_per_100g * item.quantity) ?? 0), 0));
-            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.proteins_per_100g * item.quantity) ?? 0), 0));
-            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fats_per_100g * item.quantity) ?? 0), 0));
-            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g * item.quantity) ?? 0), 0));
-            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g * item.quantity) ?? 0), 0));
+            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.kcal_per_100g * item.quantity), 0));
+            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g * item.quantity), 0));
+            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g * item.quantity), 0));
+            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g * item.quantity), 0));
+            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g ?? 0) * item.quantity), 0));
+            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g ?? 0) * item.quantity), 0));
             return acc;
         }, {});
     }, [mealsData]);
@@ -182,18 +182,6 @@ export default function Meals() {
                 backgroundColor: "rgba(59, 130, 246, 0.3)",
             },
         ],
-    };
-
-    const chartOptions = {
-        responsive: true,
-        plugins: {
-            legend: { position: "top" as const },
-            tooltip: { mode: "index", intersect: false },
-        },
-        scales: {
-            x: { stacked: true },
-            y: { stacked: false, beginAtZero: true },
-        },
     };
 
     return (
@@ -355,7 +343,7 @@ export default function Meals() {
             <div className="mx-4 mb-8">
                 <h2 className="text-lg font-semibold mb-2">Daily Nutrition Chart</h2>
                 <div className="bg-white dark:bg-stone-900 rounded-lg p-4 shadow">
-                    <Bar data={chartData} options={chartOptions} />
+                    <Bar data={chartData} />
                 </div>
             </div>
 
@@ -368,12 +356,12 @@ export default function Meals() {
                             if (!acc[day]) {
                                 acc[day] = { kcal: 0, carb: 0, protein: 0, fat: 0, fiber: 0, sodium: 0 };
                             }
-                            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.kcal_per_100g * item.quantity) ?? 0), 0));
-                            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.carbohydrates_per_100g * item.quantity) ?? 0), 0));
-                            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.proteins_per_100g * item.quantity) ?? 0), 0));
-                            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fats_per_100g * item.quantity) ?? 0), 0));
-                            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g * item.quantity) ?? 0), 0));
-                            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g * item.quantity) ?? 0), 0));
+                            acc[day].kcal += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.kcal_per_100g * item.quantity), 0));
+                            acc[day].carb += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g * item.quantity), 0));
+                            acc[day].protein += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g * item.quantity), 0));
+                            acc[day].fat += Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g * item.quantity), 0));
+                            acc[day].fiber += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g ?? 0) * item.quantity), 0));
+                            acc[day].sodium += Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g ?? 0) * item.quantity), 0));
   
                             return acc;
                         }, {})
@@ -433,8 +421,8 @@ export default function Meals() {
                                 const totalCarb = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.carbohydrates_per_100g * item.quantity), 0));
                                 const totalProtein = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.proteins_per_100g * item.quantity), 0));
                                 const totalFat = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fats_per_100g * item.quantity), 0));
-                                const totalFiber = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.fiber_per_100g * item.quantity), 0));
-                                const totalSodium = Math.round(meal.mealItems.reduce((sum, item) => sum + (item.food.sodium_per_100g * item.quantity), 0));
+                                const totalFiber = Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.fiber_per_100g ?? 0) * item.quantity), 0));
+                                const totalSodium = Math.round(meal.mealItems.reduce((sum, item) => sum + ((item.food.sodium_per_100g ?? 0) * item.quantity), 0));
 
                                 return (
                                     <tr key={meal.id}>
